@@ -1,0 +1,747 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Patchbay Sign-up</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: the form is a piece of hardware. Coloured modules snap into a dark tray on an extruded chassis.
+   Depth = flat-front extrusion (darker side face of the same hue) + hard diagonal cast shadow, never blur. */
+:root {
+  --paper: #F6F1E6;
+  --fg: #17181E;
+  --muted: #5E5A50;
+  --grid: rgba(23, 24, 30, .08);
+  --cast: rgba(21, 22, 28, .2);
+
+  --ink: #15161C;
+  --plate: #DCD6C9; --plate-top: #ECE7DC; --plate-side: #A69E8D; --plate-mark: #615A4C;
+  --tray: #23252D;
+
+  --screen: #1B1D24; --screen-fg: #EEF1E6; --screen-dim: #8E939E; --lcd: #A6E36F;
+
+  --blue: #2659C9;   --blue-top: #4277E3;   --blue-side: #163D8F;
+  --red: #CC2E27;    --red-top: #E4544C;    --red-side: #8C1813;
+  --green: #45B141;  --green-top: #6ACB65;  --green-side: #2A7A28;
+  --orange: #F08A1C; --orange-top: #F7A84F; --orange-side: #AF5C07;
+  --yellow: #F5C531; --yellow-top: #FBDA6A; --yellow-side: #BC8F12;
+  --bone: #EEE9DE;   --bone-top: #FAF7F0;   --bone-side: #BDB4A2;
+  --smoke: #2B2D35;  --smoke-top: #474A56;  --smoke-side: #15161B;
+  --on-dark: #F5F1E7;
+
+  --led-off: #3B3E48; --led-ok: #8BEA5B; --led-warn: #FFB020; --led-err: #FF5544;
+
+  --stroke: 2.5px;
+  --f-display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "DM Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #14151A; --fg: #ECE7DB; --muted: #A39E92;
+    --grid: rgba(236, 231, 219, .06); --cast: rgba(0, 0, 0, .55);
+    --ink: #0C0D11;
+    --plate: #2C2F38; --plate-top: #3D414C; --plate-side: #18191F; --plate-mark: #9A9EA9;
+    --tray: #0E0F13;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #14151A; --fg: #ECE7DB; --muted: #A39E92;
+  --grid: rgba(236, 231, 219, .06); --cast: rgba(0, 0, 0, .55);
+  --ink: #0C0D11;
+  --plate: #2C2F38; --plate-top: #3D414C; --plate-side: #18191F; --plate-mark: #9A9EA9;
+  --tray: #0E0F13;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  background: radial-gradient(var(--grid) 1.2px, transparent 1.6px) 0 0 / 22px 22px, var(--paper);
+  color: var(--fg);
+  font: 400 15px/1.45 var(--f-body);
+  padding-inline: 16px;
+  padding-block: 48px 72px;
+  transition: background-color .3s;
+}
+.wrap { max-width: 780px; margin: 0 auto; display: grid; gap: 44px; }
+
+/* ---------- Colour families: face / top bevel / side face / text-on-face ---------- */
+.c-blue   { --face: var(--blue);   --top: var(--blue-top);   --side: var(--blue-side);   --on: var(--on-dark); }
+.c-red    { --face: var(--red);    --top: var(--red-top);    --side: var(--red-side);    --on: var(--on-dark); }
+.c-green  { --face: var(--green);  --top: var(--green-top);  --side: var(--green-side);  --on: var(--ink); }
+.c-orange { --face: var(--orange); --top: var(--orange-top); --side: var(--orange-side); --on: var(--ink); }
+.c-yellow { --face: var(--yellow); --top: var(--yellow-top); --side: var(--yellow-side); --on: var(--ink); }
+.c-bone   { --face: var(--bone);   --top: var(--bone-top);   --side: var(--bone-side);   --on: var(--ink); }
+.c-smoke  { --face: var(--smoke);  --top: var(--smoke-top);  --side: var(--smoke-side);  --on: var(--on-dark); }
+.c-plate  { --face: var(--plate);  --top: var(--plate-top);  --side: var(--plate-side);  --on: var(--fg); }
+
+/* ---------- Slab: the extruded object. ::before = side face + cast shadow, ::after = top face ---------- */
+.slab {
+  --d: 8px; --r: 16px; --pad: 16px;
+  position: relative;
+  isolation: isolate;
+  padding: var(--pad) var(--pad) calc(var(--pad) + var(--d));
+  color: var(--on);
+}
+.slab::before, .slab::after {
+  content: "";
+  position: absolute;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--r);
+  pointer-events: none;
+}
+.slab::before { inset: var(--d) 0 0 0; background: var(--side); z-index: -2; box-shadow: 7px 7px 0 var(--cast); }
+.slab::after  { inset: 0 0 var(--d) 0; background: var(--face); z-index: -1; box-shadow: inset 0 3px 0 var(--top); }
+
+/* ---------- Chassis + tray ---------- */
+.chassis { --d: 14px; --r: 26px; --pad: 18px; }
+.chassis::before { background: repeating-linear-gradient(90deg, var(--side) 0 10px, color-mix(in srgb, var(--side) 82%, #000) 10px 12px); }
+.chassis-mark {
+  display: flex; justify-content: space-between; gap: 12px;
+  font: 500 10px/1 var(--f-mono); letter-spacing: .16em; text-transform: uppercase;
+  color: var(--plate-mark); padding: 0 14px 12px;
+}
+.tray {
+  background: var(--tray);
+  border: var(--stroke) solid var(--ink);
+  border-radius: 16px;
+  box-shadow: inset 0 7px 0 rgba(0, 0, 0, .35);
+  padding: 22px 16px 20px;
+}
+.screw {
+  position: absolute; width: 13px; height: 13px; border-radius: 50%;
+  border: 2px solid var(--ink);
+  background: linear-gradient(135deg, #F7F4EC 50%, #BDB5A5 50%);
+  z-index: 2;
+}
+.screw::after {
+  content: ""; position: absolute; left: 1px; right: 1px; top: 50%; height: 2px; margin-top: -1px;
+  background: var(--ink); transform: rotate(var(--rot, 35deg));
+}
+.screw.tl { top: 9px; left: 9px; } .screw.tr { top: 9px; right: 9px; --rot: -20deg; }
+.screw.bl { bottom: calc(var(--d) + 9px); left: 9px; --rot: 80deg; } .screw.br { bottom: calc(var(--d) + 9px); right: 9px; --rot: 10deg; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px 14px;
+  grid-template-areas:
+    "plate plate plate dial"
+    "name  name  email email"
+    "pass  pass  pass  batt"
+    "terms terms submit submit";
+}
+.a-plate { grid-area: plate; } .a-dial { grid-area: dial; } .a-name { grid-area: name; } .a-email { grid-area: email; }
+.a-pass { grid-area: pass; } .a-batt { grid-area: batt; } .a-terms { grid-area: terms; } .a-submit { grid-area: submit; }
+
+/* ---------- Module ---------- */
+.mod { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.mod-head { display: flex; align-items: center; gap: 8px; min-height: 26px; }
+.tag {
+  display: inline-block;
+  font: 850 13px/1 var(--f-display); font-stretch: 72%;
+  letter-spacing: .07em; text-transform: uppercase;
+  background: var(--tag-bg, var(--bone)); color: var(--ink);
+  border: 2px solid var(--ink); border-radius: 6px;
+  padding: 5px 8px 4px;
+  box-shadow: 2px 2px 0 var(--ink);
+  transform: rotate(-1.5deg);
+}
+.c-bone .tag { --tag-bg: var(--yellow); }
+.ch { margin-left: auto; font: 500 10.5px/1 var(--f-mono); letter-spacing: .14em; text-transform: uppercase; opacity: .85; }
+.led {
+  flex: none; width: 13px; height: 13px; border-radius: 50%;
+  border: 2px solid var(--ink); background: var(--led-off);
+  transition: background-color .2s, box-shadow .2s;
+}
+.led[data-s="ok"]   { background: var(--led-ok);   box-shadow: 0 0 0 3px rgba(139, 234, 91, .28), 0 0 12px var(--led-ok); }
+.led[data-s="warn"] { background: var(--led-warn); box-shadow: 0 0 0 3px rgba(255, 176, 32, .28), 0 0 12px var(--led-warn); }
+.led[data-s="err"]  { background: var(--led-err);  box-shadow: 0 0 0 3px rgba(255, 85, 68, .3), 0 0 12px var(--led-err); }
+
+/* Recessed screen: hard inner wall + one diagonal glare */
+.screen {
+  position: relative; display: flex; align-items: center; min-width: 0;
+  background: var(--screen);
+  border: var(--stroke) solid var(--ink);
+  border-radius: 10px;
+  box-shadow: inset 0 5px 0 rgba(0, 0, 0, .5);
+  overflow: hidden;
+}
+.screen::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(115deg, transparent 0 64%, rgba(255, 255, 255, .07) 64% 75%, transparent 75%);
+}
+.screen:focus-within { outline: 3px solid var(--ink); outline-offset: 3px; }
+.screen input {
+  flex: 1; min-width: 0; width: 100%;
+  background: transparent; border: 0; outline: 0;
+  color: var(--screen-fg); caret-color: var(--lcd);
+  font: 500 16px/1.2 var(--f-body);
+  padding: 14px 14px 12px;
+}
+.screen input::placeholder { color: var(--screen-dim); }
+.readout {
+  margin: 0; min-height: 1.35em;
+  font: 500 11px/1.35 var(--f-mono); letter-spacing: .06em; text-transform: uppercase;
+}
+.readout::before { content: "› "; }
+.mod[data-s="err"] .readout { font-weight: 500; text-decoration: underline 2px; text-underline-offset: 3px; }
+
+/* ---------- Keycap: real cap that presses into its side face ---------- */
+.key {
+  --d: 5px; --r: 9px;
+  --face: var(--bone); --top: var(--bone-top); --side: var(--bone-side);
+  position: relative; isolation: isolate;
+  border: 0; background: none; padding: 0 0 var(--d); margin: 0;
+  font: inherit; color: var(--ink); cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.key::before {
+  content: ""; position: absolute; inset: var(--d) 0 0 0; z-index: -1;
+  background: var(--side); border: var(--stroke) solid var(--ink); border-radius: var(--r);
+}
+.key-cap {
+  position: relative;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  height: 100%;
+  background: var(--face);
+  border: var(--stroke) solid var(--ink); border-radius: var(--r);
+  box-shadow: inset 0 3px 0 var(--top);
+  padding: 8px 12px;
+  transform: translateY(var(--press, 0px));
+  transition: transform .07s ease-out;
+}
+.key:active, .key.is-down { --press: calc(var(--d) - 1px); }
+.key:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; border-radius: var(--r); }
+.key-sm .key-cap { font: 500 11px/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; padding: 0 12px; min-width: 64px; }
+
+/* ---------- Nameplate (smoked acrylic) ---------- */
+.plate { --pad: 20px; padding-right: 112px; }
+.c-smoke::after {
+  background:
+    linear-gradient(112deg, transparent 56%, rgba(255, 255, 255, .07) 56% 65%, transparent 65% 69%, rgba(255, 255, 255, .05) 69% 71.5%, transparent 71.5%),
+    var(--face);
+}
+.eyebrow { margin: 0; font: 500 10.5px/1.3 var(--f-mono); letter-spacing: .16em; text-transform: uppercase; color: var(--lcd); }
+h1 {
+  margin: 6px 0 6px;
+  font: 900 52px/.9 var(--f-display); font-stretch: 66%;
+  letter-spacing: -.005em; text-transform: uppercase;
+  text-wrap: balance;
+}
+h1 span { color: var(--yellow); }
+.plate p.sub { margin: 0; max-width: 40ch; color: color-mix(in srgb, var(--on) 82%, transparent); }
+.marks { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.marks span {
+  font: 500 9.5px/1 var(--f-mono); letter-spacing: .12em; text-transform: uppercase;
+  border: 1.5px solid color-mix(in srgb, var(--on) 55%, transparent); border-radius: 4px; padding: 4px 6px 3px;
+  color: color-mix(in srgb, var(--on) 80%, transparent);
+}
+.marks .ce { font: 800 12px/1 var(--f-display); letter-spacing: 0; padding: 2px 5px; }
+
+/* Hanging smiley coin (keychain) */
+.charm { position: absolute; top: -26px; right: 22px; width: 78px; height: 120px; z-index: 3; transform-origin: 50% 8px; transform: rotate(-9deg); }
+.charm .ring {
+  position: absolute; top: 0; left: 50%; width: 32px; height: 32px; margin-left: -16px; border-radius: 50%;
+  border: 5px solid #C9C4B9; box-shadow: 0 0 0 2px var(--ink), inset 0 0 0 2px var(--ink);
+}
+.charm .link { position: absolute; top: 28px; left: 50%; width: 14px; height: 16px; margin-left: -7px; border-radius: 6px; border: 4px solid #C9C4B9; box-shadow: 0 0 0 2px var(--ink), inset 0 0 0 2px var(--ink); }
+.charm svg { position: absolute; top: 40px; left: 3px; width: 72px; height: 72px; filter: drop-shadow(5px 5px 0 var(--cast)); }
+.coin-face { fill: var(--yellow); stroke: var(--ink); stroke-width: 5; }
+.coin-rim { fill: var(--yellow-side); stroke: var(--ink); stroke-width: 5; }
+.coin-shine { fill: none; stroke: var(--yellow-top); stroke-width: 6; stroke-linecap: round; }
+.coin-feat { fill: none; stroke: var(--ink); stroke-width: 7; stroke-linecap: round; transition: d .3s; }
+.charm.swing { animation: swing 1.4s cubic-bezier(.3, 1.4, .5, 1); }
+@keyframes swing { 0% { transform: rotate(-9deg); } 20% { transform: rotate(16deg); } 45% { transform: rotate(-14deg); } 70% { transform: rotate(6deg); } 100% { transform: rotate(-9deg); } }
+
+/* ---------- Theme dial ---------- */
+.dial-mod { align-items: center; }
+.dial-mod .mod-head { align-self: stretch; }
+.dial { position: relative; width: 124px; height: 92px; }
+.opts { display: flex; justify-content: center; gap: 2px; }
+.opts .opt {
+  border: 0; background: none; padding: 4px 5px 3px; border-radius: 4px; cursor: pointer;
+  font: 500 10px/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--on);
+}
+.opts .opt[aria-pressed="true"] { background: var(--ink); color: var(--bone); }
+.opts .opt:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.dial .tick { position: absolute; left: 50%; top: 50px; width: 3px; height: 46px; margin: -46px 0 0 -1.5px; transform-origin: 50% 100%; }
+.dial .tick::before { content: ""; position: absolute; top: 0; left: 0; width: 3px; height: 8px; background: var(--ink); border-radius: 2px; }
+.knob { --d: 6px; --r: 50%; position: absolute; left: 50%; top: 17px; margin-left: -33px; width: 66px; }
+.knob .key-cap {
+  height: 66px; padding: 0; border-radius: 50%;
+  background: repeating-conic-gradient(var(--bone) 0 9deg, var(--bone-side) 9deg 10deg);
+  box-shadow: inset 0 3px 0 var(--top), inset 0 0 0 9px var(--bone), inset 0 0 0 11px var(--ink);
+  transform: translateY(var(--press, 0px)) rotate(var(--rot, 0deg));
+  transition: transform .45s cubic-bezier(.3, 1.6, .5, 1);
+}
+.knob .pointer { position: absolute; left: 50%; top: 5px; width: 6px; height: 22px; margin-left: -3px; background: var(--red); border: 2px solid var(--ink); border-radius: 3px; }
+
+/* ---------- Password ---------- */
+.row { display: flex; gap: 10px; align-items: stretch; }
+.row .screen { flex: 1; }
+.strength {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--screen); border: var(--stroke) solid var(--ink); border-radius: 8px;
+  box-shadow: inset 0 4px 0 rgba(0, 0, 0, .5);
+  padding: 8px 10px 7px;
+}
+.segs { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.segs i { height: 9px; border-radius: 2px; background: rgba(166, 227, 111, .12); transition: background-color .2s; }
+.strength[data-lvl="1"] .segs i:nth-child(-n+1) { background: var(--led-err); }
+.strength[data-lvl="2"] .segs i:nth-child(-n+2) { background: var(--led-warn); }
+.strength[data-lvl="3"] .segs i:nth-child(-n+3) { background: #C6E85B; }
+.strength[data-lvl="4"] .segs i:nth-child(-n+4) { background: var(--led-ok); }
+.strength b { min-width: 9ch; text-transform: uppercase; text-align: right; font: 500 11px/1 var(--f-mono); letter-spacing: .1em; color: var(--lcd); }
+
+/* ---------- Battery / status ---------- */
+.lcd {
+  flex: 1; display: grid; place-content: center; justify-items: center; gap: 8px;
+  background: var(--screen); border: var(--stroke) solid var(--ink); border-radius: 12px;
+  box-shadow: inset 0 5px 0 rgba(0, 0, 0, .5);
+  padding: 12px 10px; color: var(--lcd); position: relative; overflow: hidden;
+}
+.lcd::after { content: ""; position: absolute; inset: 0; background: linear-gradient(120deg, transparent 0 60%, rgba(255, 255, 255, .06) 60% 72%, transparent 72%); pointer-events: none; }
+.batt-line { display: flex; align-items: center; gap: 10px; }
+.batt { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; width: 50px; height: 24px; padding: 3px; border: 2.5px solid var(--lcd); border-radius: 5px; }
+.batt::after { content: ""; position: absolute; right: -6px; top: 6px; width: 3px; height: 8px; background: var(--lcd); border-radius: 0 2px 2px 0; }
+.batt i { background: rgba(166, 227, 111, .14); border-radius: 1px; }
+.batt i.on { background: var(--lcd); }
+.pct { font: 500 30px/1 var(--f-mono); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.bolt { width: 14px; height: 20px; fill: var(--led-warn); opacity: 0; transition: opacity .2s; }
+.lcd.full .bolt { opacity: 1; }
+.lcd small { font: 500 10px/1 var(--f-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--screen-dim); }
+
+/* ---------- Terms switch ---------- */
+.terms-body { display: flex; align-items: center; gap: 14px; }
+.terms-body p { margin: 0; font-size: 14px; line-height: 1.35; min-width: 0; }
+.terms-body a { color: var(--ink); font-weight: 700; text-decoration: underline 2px; text-underline-offset: 2px; }
+.switch {
+  flex: none; position: relative; width: 78px; height: 38px; padding: 0; cursor: pointer;
+  background: var(--screen); border: var(--stroke) solid var(--ink); border-radius: 10px;
+  box-shadow: inset 0 5px 0 rgba(0, 0, 0, .5);
+}
+.switch .lbl { position: absolute; top: 50%; transform: translateY(-50%); font: 500 9.5px/1 var(--f-mono); letter-spacing: .1em; color: var(--screen-dim); }
+.switch .l-off { right: 8px; } .switch .l-on { left: 9px; }
+.switch[aria-checked="true"] .l-on { color: var(--lcd); }
+.switch .thumb {
+  position: absolute; top: 2px; left: 2px; width: 34px; height: 30px;
+  background: var(--bone); border: var(--stroke) solid var(--ink); border-radius: 7px;
+  box-shadow: inset 0 3px 0 var(--bone-top), 0 4px 0 var(--bone-side), 0 4px 0 var(--stroke) var(--ink);
+  transition: transform .22s cubic-bezier(.3, 1.5, .5, 1);
+}
+.switch .thumb::after { content: ""; position: absolute; left: 50%; top: 6px; bottom: 8px; width: 2px; margin-left: -4px; background: var(--bone-side); box-shadow: 6px 0 0 var(--bone-side); }
+.switch[aria-checked="true"] .thumb { transform: translateX(38px); }
+.switch:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+
+/* ---------- Submit: the big yellow key ---------- */
+.submit { --d: 11px; --r: 16px; --face: var(--yellow); --top: var(--yellow-top); --side: var(--yellow-side); width: 100%; min-height: 128px; }
+.submit::before { box-shadow: 7px 7px 0 rgba(0, 0, 0, .35); }
+.submit .key-cap { flex-direction: column; align-items: stretch; justify-content: space-between; gap: 10px; padding: 14px 16px 12px; text-align: left; }
+.submit .go { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.submit .go strong { font: 900 34px/.88 var(--f-display); font-stretch: 66%; text-transform: uppercase; letter-spacing: 0; }
+.submit .go svg { flex: none; width: 40px; height: 40px; }
+.submit .meta { display: flex; justify-content: space-between; font: 500 10px/1 var(--f-mono); letter-spacing: .14em; text-transform: uppercase; }
+.submit .meta kbd { font: inherit; border: 1.5px solid var(--ink); border-radius: 4px; padding: 3px 5px 2px; }
+
+/* ---------- Below the device ---------- */
+.under { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px 24px; padding: 0 6px; }
+.keytag { display: inline-flex; align-items: center; text-decoration: none; color: var(--on-dark); }
+.keytag .hole { width: 26px; height: 26px; border-radius: 50%; border: 5px solid #C9C4B9; box-shadow: 0 0 0 2px var(--ink), inset 0 0 0 2px var(--ink); margin-right: -6px; position: relative; z-index: 1; }
+.keytag .strap {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--blue); border: var(--stroke) solid var(--ink); border-radius: 4px 12px 12px 4px;
+  box-shadow: inset 0 3px 0 var(--blue-top), 0 6px 0 var(--blue-side), 0 6px 0 var(--stroke) var(--ink), 7px 12px 0 var(--cast);
+  padding: 9px 14px 8px 16px; transform: rotate(-2deg);
+  font: 800 15px/1 var(--f-display); font-stretch: 72%; letter-spacing: .06em; text-transform: uppercase;
+  transition: transform .2s;
+}
+.keytag .strap small { font: 500 10px/1 var(--f-mono); letter-spacing: .1em; opacity: .85; }
+.keytag:hover .strap { transform: rotate(1deg); }
+.keytag:focus-visible { outline: 3px solid var(--fg); outline-offset: 6px; border-radius: 8px; }
+.fineprint { margin: 0; font: 500 10.5px/1.5 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); text-align: right; }
+
+/* Success ticket */
+.ticket {
+  --d: 8px; --r: 12px; --pad: 18px;
+  display: grid; grid-template-columns: auto 1fr; gap: 6px 18px; align-items: center;
+  max-width: 520px; justify-self: center; width: 100%;
+  animation: drop .55s cubic-bezier(.3, 1.4, .5, 1);
+}
+.ticket .stamp {
+  grid-row: span 3; width: 74px; height: 74px; border-radius: 50%;
+  border: 3px solid var(--red); color: var(--red); display: grid; place-items: center; text-align: center;
+  font: 900 13px/1 var(--f-display); font-stretch: 66%; letter-spacing: .06em; text-transform: uppercase; transform: rotate(-12deg);
+}
+.ticket h2 { margin: 0; font: 900 28px/1 var(--f-display); font-stretch: 66%; text-transform: uppercase; }
+.ticket p { margin: 0; font-size: 14px; }
+.ticket .fine { font: 500 10px/1.4 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; opacity: .75; }
+@keyframes drop { from { transform: translateY(-40px) rotate(-3deg); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* ---------- Style notes ---------- */
+.notes { display: grid; gap: 18px; }
+.notes h2 { margin: 0; font: 900 26px/1 var(--f-display); font-stretch: 66%; text-transform: uppercase; letter-spacing: .01em; }
+.notes h2 small { font: 500 10.5px/1 var(--f-mono); letter-spacing: .14em; color: var(--muted); margin-left: 10px; vertical-align: middle; }
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 18px 12px; }
+.sw { --d: 6px; --r: 10px; --pad: 10px; min-height: 76px; display: flex; flex-direction: column; justify-content: flex-end; }
+.sw::before { box-shadow: 5px 5px 0 var(--cast); }
+.sw b { font: 850 14px/1 var(--f-display); font-stretch: 72%; text-transform: uppercase; letter-spacing: .05em; }
+.sw span { font: 500 10px/1.3 var(--f-mono); letter-spacing: .06em; opacity: .85; }
+.c-ink { --face: #15161C; --top: #33353F; --side: #000; --on: #F5F1E7; }
+.c-paper { --face: #F6F1E6; --top: #FFFFFF; --side: #CFC7B5; --on: #15161C; }
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px 28px; margin: 0; padding: 0; list-style: none; }
+.rules li { border-top: 2px solid var(--fg); padding-top: 8px; font-size: 14px; color: var(--fg); min-width: 0; }
+.rules li b { display: block; font: 500 10.5px/1.4 var(--f-mono); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 3px; }
+
+/* ---------- States ---------- */
+.chassis.shake { animation: shake .42s; }
+@keyframes shake { 20% { transform: translateX(-7px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(2px); } }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 680px) {
+  body { padding-block: 40px 56px; }
+  .chassis { --pad: 12px; --d: 12px; }
+  .tray { padding: 16px 12px; }
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 12px;
+    grid-template-areas: "plate plate" "name name" "email email" "pass pass" "dial batt" "terms terms" "submit submit";
+  }
+  .plate { padding-right: 20px; padding-top: 74px; }
+  .charm { right: 14px; top: -20px; width: 64px; }
+  .charm svg { width: 60px; height: 60px; left: 2px; top: 38px; }
+  h1 { font-size: 44px; }
+  .chassis-mark span:last-child { display: none; }
+  .fineprint { text-align: left; }
+}
+@media (max-width: 380px) {
+  .grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: "plate" "name" "email" "pass" "dial" "batt" "terms" "submit"; }
+  .terms-body { flex-direction: column; align-items: flex-start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+  <form class="chassis slab c-plate" id="form" novalidate aria-labelledby="title">
+    <span class="screw tl"></span><span class="screw tr"></span><span class="screw bl"></span><span class="screw br"></span>
+    <div class="chassis-mark" aria-hidden="true"><span>Patchbay · PB-01</span><span>Account unit · 4 ch</span></div>
+
+    <div class="tray">
+      <div class="grid">
+
+        <!-- Nameplate -->
+        <header class="slab c-smoke plate a-plate">
+          <p class="eyebrow">New account · Unit PB-01</p>
+          <h1 id="title">Join <span>Patchbay</span></h1>
+          <p class="sub">One account for every module you build. Takes about a minute.</p>
+          <div class="marks" aria-hidden="true"><span class="ce">CE</span><span>Rev 0.3</span><span>Sample data loaded</span></div>
+          <div class="charm" id="charm" aria-hidden="true">
+            <span class="ring"></span><span class="link"></span>
+            <svg viewBox="0 0 100 100">
+              <circle class="coin-rim" cx="50" cy="54" r="43"></circle>
+              <circle class="coin-face" cx="50" cy="48" r="43"></circle>
+              <path class="coin-shine" d="M22 36 Q28 18 46 14"></path>
+              <path class="coin-feat" id="eyeL" d="M40 30 L40 46"></path>
+              <path class="coin-feat" id="eyeR" d="M58 30 L58 46"></path>
+              <path class="coin-feat" id="mouth" d="M30 62 Q50 62 70 62"></path>
+            </svg>
+          </div>
+        </header>
+
+        <!-- Theme dial -->
+        <section class="slab c-orange mod dial-mod a-dial" aria-label="Theme">
+          <div class="mod-head"><span class="tag">Theme</span><span class="ch">Mode</span></div>
+          <div class="dial">
+            <span class="tick" style="transform: rotate(-58deg)"></span>
+            <span class="tick" style="transform: rotate(0deg)"></span>
+            <span class="tick" style="transform: rotate(58deg)"></span>
+            <button type="button" class="key knob" id="knob" aria-label="Change theme. Current: Auto"><span class="key-cap"><span class="pointer"></span></span></button>
+          </div>
+          <div class="opts">
+            <button type="button" class="opt" data-mode="light" aria-pressed="false">Light</button>
+            <button type="button" class="opt" data-mode="auto" aria-pressed="true">Auto</button>
+            <button type="button" class="opt" data-mode="dark" aria-pressed="false">Dark</button>
+          </div>
+        </section>
+
+        <!-- Name -->
+        <section class="slab c-blue mod a-name" id="m-name">
+          <div class="mod-head"><label class="tag" for="name">Full name</label><span class="ch">Ch 1</span><span class="led"></span></div>
+          <div class="screen"><input id="name" name="name" autocomplete="name" placeholder="Ada Okafor" aria-describedby="r-name"></div>
+          <p class="readout" id="r-name" aria-live="polite"></p>
+        </section>
+
+        <!-- Email -->
+        <section class="slab c-green mod a-email" id="m-email">
+          <div class="mod-head"><label class="tag" for="email">Email</label><span class="ch">Ch 2</span><span class="led"></span></div>
+          <div class="screen"><input id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="you@studio.com" aria-describedby="r-email"></div>
+          <p class="readout" id="r-email" aria-live="polite"></p>
+        </section>
+
+        <!-- Password -->
+        <section class="slab c-red mod a-pass" id="m-pass">
+          <div class="mod-head"><label class="tag" for="pass">Password</label><span class="ch">Ch 3</span><span class="led"></span></div>
+          <div class="row">
+            <div class="screen"><input id="pass" name="password" type="password" autocomplete="new-password" placeholder="8+ characters" aria-describedby="r-pass s-pass"></div>
+            <button type="button" class="key key-sm" id="show" aria-pressed="false" aria-controls="pass"><span class="key-cap">Show</span></button>
+          </div>
+          <div class="strength" id="strength" data-lvl="0">
+            <div class="segs" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+            <b id="s-pass">—</b>
+          </div>
+          <p class="readout" id="r-pass" aria-live="polite"></p>
+        </section>
+
+        <!-- Status / battery -->
+        <section class="slab c-bone mod a-batt" aria-label="Form status">
+          <div class="mod-head"><span class="tag">Status</span><span class="ch">Pwr</span></div>
+          <div class="lcd" id="lcd">
+            <div class="batt-line">
+              <div class="batt" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+              <svg class="bolt" viewBox="0 0 14 20" aria-hidden="true"><path d="M9 0 0 11h5l-1 9 10-12H8z"></path></svg>
+            </div>
+            <span class="pct" id="pct">0%</span>
+            <small id="cap">0 of 4 ready</small>
+          </div>
+        </section>
+
+        <!-- Terms -->
+        <section class="slab c-bone mod a-terms" id="m-terms">
+          <div class="mod-head"><span class="tag" id="terms-tag">Terms</span><span class="ch">Ch 4</span><span class="led"></span></div>
+          <div class="terms-body">
+            <button type="button" class="switch" id="terms" role="switch" aria-checked="false" aria-labelledby="terms-text" aria-describedby="r-terms">
+              <span class="lbl l-on">ON</span><span class="lbl l-off">OFF</span><span class="thumb"></span>
+            </button>
+            <p id="terms-text">I agree to the <a href="#terms">Terms of Service</a> and <a href="#privacy">Privacy Policy</a>.</p>
+          </div>
+          <p class="readout" id="r-terms" aria-live="polite"></p>
+        </section>
+
+        <!-- Submit -->
+        <button type="submit" class="key submit a-submit" id="submit">
+          <span class="key-cap">
+            <span class="meta"><span>Ch out</span><span><kbd>Enter</kbd></span></span>
+            <span class="go">
+              <strong id="submit-label">Create account</strong>
+              <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="17" fill="none" stroke="currentColor" stroke-width="3"></circle><path d="M13 20h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </span>
+          </span>
+        </button>
+
+      </div>
+    </div>
+  </form>
+
+  <section class="ticket slab c-bone" id="ticket" hidden aria-live="polite">
+    <div class="stamp">Access<br>granted</div>
+    <h2 id="t-name">Welcome aboard</h2>
+    <p id="t-mail"></p>
+    <p class="fine">Style sample only. No account was created and no email was sent.</p>
+  </section>
+
+  <div class="under">
+    <a class="keytag" href="#login"><span class="hole" aria-hidden="true"></span><span class="strap">Already a member? <small>Log in →</small></span></a>
+    <p class="fineprint">Patchbay account unit PB-01<br>Style study 01 · Hardware pop</p>
+  </div>
+
+  <!-- Style notes: the rules this sample is locking in -->
+  <section class="notes" aria-labelledby="notes-h">
+    <h2 id="notes-h">Style notes <small>for the real brief</small></h2>
+    <div class="swatches">
+      <div class="slab sw c-ink"><b>Ink</b><span>#15161C · outlines</span></div>
+      <div class="slab sw c-paper"><b>Paper</b><span>#F6F1E6 · ground</span></div>
+      <div class="slab sw c-blue"><b>Cobalt</b><span>#2659C9</span></div>
+      <div class="slab sw c-green"><b>Grass</b><span>#45B141</span></div>
+      <div class="slab sw c-red"><b>Signal</b><span>#CC2E27</span></div>
+      <div class="slab sw c-orange"><b>Safety</b><span>#F08A1C</span></div>
+      <div class="slab sw c-yellow"><b>Mustard</b><span>#F5C531</span></div>
+      <div class="slab sw c-bone"><b>Bone</b><span>#EEE9DE</span></div>
+      <div class="slab sw c-smoke"><b>Smoke</b><span>#2B2D35 · acrylic</span></div>
+    </div>
+    <ul class="rules">
+      <li><b>Outline</b>Every object gets a 2.5px ink stroke. Objects meet the ground through outline and colour, never through blur.</li>
+      <li><b>Depth</b>Flat-front extrusion: a 5–14px side face in a darker shade of the same hue, a light bevel on the top edge, and a 7px diagonal cast shadow with no blur.</li>
+      <li><b>Screens</b>Dark recesses with a 5px hard inner wall and one diagonal glare. Text inside is light; LCD readouts use lime.</li>
+      <li><b>Controls</b>Keys and switches press down into their side face. LEDs report each field: amber while editing, green when valid, red when it needs a fix.</li>
+      <li><b>Colour</b>One saturated hue per object, placed side by side and never blended. Bone and smoke act as neutrals between them.</li>
+      <li><b>Type</b>Archivo condensed 850–900 for plates and keys, Archivo for typed text, and DM Mono caps for labels and readouts.</li>
+    </ul>
+  </section>
+
+</main>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const root = document.documentElement;
+  const form = $("form");
+  const touched = new Set();
+  let focused = null;
+  let done = false;
+
+  const fields = {
+    name: { input: $("name"), mod: $("m-name"), out: $("r-name"),
+      hint: "As it appears on your profile",
+      check(v) {
+        v = v.trim();
+        if (!v) return [false, "Enter your name"];
+        if (v.length < 2) return [false, "Name needs at least 2 letters"];
+        return [true, "Nice to meet you, " + v.split(/\s+/)[0]];
+      } },
+    email: { input: $("email"), mod: $("m-email"), out: $("r-email"),
+      hint: "We send a confirmation link here",
+      check(v) {
+        v = v.trim();
+        if (!v) return [false, "Enter your email"];
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) return [false, "Add an @ and a domain, like name@site.com"];
+        return [true, "Format looks right"];
+      } },
+    pass: { input: $("pass"), mod: $("m-pass"), out: $("r-pass"),
+      hint: "8+ characters. Mix in numbers and symbols",
+      check(v) {
+        if (!v) return [false, "Choose a password"];
+        if (v.length < 8) return [false, v.length + " / 8 characters"];
+        const s = strength(v);
+        return [true, s < 4 ? "Add a symbol or more length to make it stronger" : "Strong password"];
+      } },
+    terms: { input: $("terms"), mod: $("m-terms"), out: $("r-terms"),
+      hint: "Flip the switch to accept",
+      check() {
+        return $("terms").getAttribute("aria-checked") === "true" ? [true, "Terms accepted"] : [false, "Accept the terms to continue"];
+      } },
+  };
+
+  function strength(v) {
+    if (!v) return 0;
+    let s = 1;
+    if (v.length >= 8) s++;
+    if (/\d/.test(v) && /[A-Za-z]/.test(v)) s++;
+    if (/[^A-Za-z0-9]/.test(v) || v.length >= 14) s++;
+    return v.length < 8 ? Math.min(s, 1) : s;
+  }
+
+  function value(k) { return k === "terms" ? "" : fields[k].input.value; }
+
+  function render() {
+    let ready = 0;
+    for (const k in fields) {
+      const f = fields[k];
+      const [ok, msg] = f.check(value(k));
+      if (ok) ready++;
+      const led = f.mod.querySelector(".led");
+      let s = "off";
+      if (ok) s = "ok";
+      else if (focused === k) s = "warn";
+      else if (touched.has(k)) s = "err";
+      led.dataset.s = s;
+      f.mod.dataset.s = s;
+      f.out.textContent = ok || touched.has(k) ? msg : f.hint;
+      if (k !== "terms") f.input.setAttribute("aria-invalid", s === "err" ? "true" : "false");
+    }
+
+    // Password meter
+    const lvl = strength(value("pass"));
+    $("strength").dataset.lvl = lvl;
+    $("s-pass").textContent = ["—", "Too short", "Fair", "Good", "Strong"][lvl];
+
+    // Battery: one cell per field
+    const pct = ready * 25;
+    $("pct").textContent = pct + "%";
+    $("cap").textContent = ready === 4 ? "Ready to submit" : ready + " of 4 ready";
+    $("lcd").classList.toggle("full", ready === 4);
+    document.querySelectorAll(".batt i").forEach((c, i) => c.classList.toggle("on", i < ready));
+
+    // Charm mood
+    if (!done) {
+      $("eyeL").setAttribute("d", "M40 30 L40 46");
+      $("mouth").setAttribute("d", ready === 4 ? "M28 58 Q50 82 72 58" : ready >= 2 ? "M30 62 Q50 62 70 62" : "M30 68 Q50 54 70 68");
+    }
+    return ready;
+  }
+
+  for (const k of ["name", "email", "pass"]) {
+    const el = fields[k].input;
+    el.addEventListener("input", render);
+    el.addEventListener("focus", () => { focused = k; render(); });
+    el.addEventListener("blur", () => { focused = null; if (el.value) touched.add(k); render(); });
+  }
+
+  $("terms").addEventListener("click", (e) => {
+    const t = e.currentTarget;
+    t.setAttribute("aria-checked", t.getAttribute("aria-checked") === "true" ? "false" : "true");
+    touched.add("terms");
+    render();
+  });
+
+  $("show").addEventListener("click", (e) => {
+    const b = e.currentTarget, on = b.getAttribute("aria-pressed") !== "true";
+    b.setAttribute("aria-pressed", on);
+    b.classList.toggle("is-down", on);
+    b.querySelector(".key-cap").textContent = on ? "Hide" : "Show";
+    $("pass").type = on ? "text" : "password";
+  });
+
+  // Theme dial
+  const modes = ["light", "auto", "dark"];
+  const rot = { light: -58, auto: 0, dark: 58 };
+  function setMode(m, save) {
+    if (m === "auto") root.removeAttribute("data-theme"); else root.setAttribute("data-theme", m);
+    $("knob").style.setProperty("--rot", rot[m] + "deg");
+    $("knob").setAttribute("aria-label", "Change theme. Current: " + m[0].toUpperCase() + m.slice(1));
+    document.querySelectorAll(".opts .opt").forEach((o) => o.setAttribute("aria-pressed", o.dataset.mode === m));
+    if (save) { try { localStorage.setItem("pb-theme", m); } catch (_) {} }
+    current = m;
+  }
+  let current = "auto";
+  let saved = null;
+  try { saved = localStorage.getItem("pb-theme"); } catch (_) {}
+  const attr = root.getAttribute("data-theme");
+  setMode(saved && modes.includes(saved) ? saved : (attr === "dark" || attr === "light" ? attr : "auto"), false);
+  $("knob").addEventListener("click", () => setMode(modes[(modes.indexOf(current) + 1) % 3], true));
+  document.querySelectorAll(".opts .opt").forEach((o) => o.addEventListener("click", () => setMode(o.dataset.mode, true)));
+
+  // Submit
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    Object.keys(fields).forEach((k) => touched.add(k));
+    focused = null;
+    const ready = render();
+    if (ready < 4) {
+      form.classList.remove("shake"); void form.offsetWidth; form.classList.add("shake");
+      const bad = Object.keys(fields).find((k) => !fields[k].check(value(k))[0]);
+      fields[bad].input.focus();
+      return;
+    }
+    done = true;
+    $("submit-label").textContent = "Account created";
+    $("eyeL").setAttribute("d", "M34 40 Q40 32 46 40");
+    $("mouth").setAttribute("d", "M28 58 Q50 84 72 58");
+    const charm = $("charm"); charm.classList.remove("swing"); void charm.offsetWidth; charm.classList.add("swing");
+    const first = $("name").value.trim().split(/\s+/)[0];
+    $("t-name").textContent = "Welcome aboard, " + first;
+    $("t-mail").textContent = "In a live build, a confirmation link would go to " + $("email").value.trim() + ".";
+    const t = $("ticket"); t.hidden = false;
+    t.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "nearest" });
+  });
+
+  // Sample state: two valid channels, one short password, terms off
+  $("name").value = "Ada Okafor";
+  $("email").value = "ada@patchbay.studio";
+  $("pass").value = "patch42";
+  ["name", "email", "pass"].forEach((k) => touched.add(k));
+  render();
+})();
+</script>
+</body>
+</html>
