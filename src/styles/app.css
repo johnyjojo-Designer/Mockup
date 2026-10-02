@@ -227,3 +227,25 @@ button { font: inherit; color: inherit; }
   .mb-proj { flex-direction: column; }
 }
 @media (prefers-reduced-motion: reduce) { .mb-asset-acts { transition: none; } }
+
+/* ---------- floating layout: the preview is the whole canvas, panels float over it ---------- */
+@media (min-width: 1181px) {
+  .mb-app { gap: 14px; padding-bottom: 0; }
+  .mb-work { position: relative; display: block; margin: 0 -16px; }
+  .mb-centre { position: absolute; inset: 0; display: block; }
+  .mb-center { position: absolute; inset: 0; display: block; }
+  .mb-well {
+    position: absolute; inset: 0; border: 0; border-radius: 0; box-shadow: none; min-height: 0;
+    padding: 18px 392px 190px 344px;
+  }
+  .mb-well::after { display: none; }
+  .mb-controls { position: absolute; z-index: 3; left: 344px; right: 392px; bottom: 26px; }
+  .mb-rail { position: absolute; z-index: 4; top: 0; bottom: 0; overflow-y: auto; overflow-x: hidden; pointer-events: none; scrollbar-width: none; padding-top: 6px; padding-bottom: 34px; }
+  .mb-rail > * { pointer-events: auto; }
+  .rail-left { left: 0; width: 330px; padding-left: 16px; padding-right: 14px; }
+  .rail-right { right: 0; width: 378px; padding-left: 14px; padding-right: 16px; }
+}
+@media (max-width: 1180px) {
+  .mb-rail { display: block; }
+  .mb-centre, .mb-center { position: static; }
+}

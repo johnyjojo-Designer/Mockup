@@ -26,9 +26,11 @@ export function buildViewport() {
     const p = store.state;
     if (!p) return;
     const r = well.getBoundingClientRect();
+    const cs = getComputedStyle(well);
+    const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight), padY = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
     const aw = p.canvas.aspect === 'custom' ? p.canvas.w / p.canvas.h : (() => { const a = ASPECTS.find((x) => x.id === p.canvas.aspect) || ASPECTS[0]; return a.w / a.h; })();
     const pad = 28;
-    let w = r.width - pad, hh = r.height - pad;
+    let w = r.width - padX - pad, hh = r.height - padY - pad;
     if (w / hh > aw) w = hh * aw; else hh = w / aw;
     w = Math.max(80, Math.floor(w)); hh = Math.max(60, Math.floor(hh));
     frame.style.width = `${w}px`; frame.style.height = `${hh}px`;

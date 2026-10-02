@@ -40,15 +40,11 @@ async function start() {
 
   const left = buildLeft(), right = buildRight(), vp = buildViewport();
 
-  const rail = (cls, eng, kids) => h('aside', { class: `an-slab an-plate an-chassis mb-rail ${cls}` },
-    h('i', { class: 'an-screw tl' }), h('i', { class: 'an-screw tr' }), h('i', { class: 'an-screw bl' }), h('i', { class: 'an-screw br' }),
-    h('div', { class: 'an-engrave' }, h('span', { text: eng[0] }), h('span', { text: eng[1] })), h('div', { class: 'an-tray mb-tray' }, kids));
-  const centre = h('main', { class: 'an-slab an-plate an-chassis mb-centre' },
-    h('i', { class: 'an-screw tl' }), h('i', { class: 'an-screw tr' }), h('i', { class: 'an-screw bl' }), h('i', { class: 'an-screw br' }),
-    h('div', { class: 'an-engrave' }, h('span', { text: 'MB-01 · Preview' }), h('span', { class: 'mb-eng-size', text: '' })), h('div', { class: 'an-tray mb-tray mb-tray-centre' }, vp.el));
-  root.replaceChildren(top, h('div', { class: 'mb-work' }, rail('rail-left', ['MB-01 · Input', 'Rev 0.1'], left.el), centre, rail('rail-right', ['MB-01 · Control', 'Ch 3–13'], right.el)));
+  const rail = (cls, kids) => h('aside', { class: `mb-rail ${cls}` }, kids);
+  const centre = h('main', { class: 'mb-centre' }, vp.el);
+  root.replaceChildren(top, h('div', { class: 'mb-work' }, centre, rail('rail-left', left.el), rail('rail-right', right.el)));
 
-  const engSize = centre.querySelector('.mb-eng-size');
+  const engSize = { textContent: '' };
   let queued = false;
   function syncAll() {
     queued = false;
