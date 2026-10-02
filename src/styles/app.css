@@ -269,3 +269,6 @@ button { font: inherit; color: inherit; }
 .mb-tag-blue { --an-tag-bg: var(--blue); color: var(--on-dark); }
 .mb-dev.is-sel { background: var(--bone); color: var(--ink); }
 .mb-dev.is-sel .mb-dot { border-color: var(--ink); }
+
+/* flat black panels: no acrylic glare stripes (kept on the top bar only) */
+.mb-rail .an-smoke::after { background: var(--an-face); }
