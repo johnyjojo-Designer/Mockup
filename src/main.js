@@ -33,7 +33,7 @@ async function start() {
   const night = toggle({ label: 'Night', get: () => document.documentElement.dataset.theme === 'dark', set: (v) => { theme(v ? 'dark' : 'light'); night.sync(); } });
   const exportKey = h('button', { type: 'button', class: 'an-key mb-hot mb-exportkey', onclick: () => { store.ui.tab = 'export'; store.emit('select'); document.querySelector('.rail-right')?.scrollIntoView?.({ block: 'nearest' }); } },
     h('span', { class: 'an-key-cap' }, h('strong', { class: 'an-display', text: 'Export' }), h('span', { html: ICON.arrow, class: 'mb-arrow' })));
-  const top = h('header', { class: 'an-slab an-smoke mb-top' },
+  const top = h('header', { class: 'an-slab an-blue mb-top' },
     h('div', { class: 'mb-brand' }, h('span', { class: 'an-display mb-logo', text: 'Mockbay' }), h('span', { class: 'an-eyebrow', text: 'Screens › Scene › Motion › Export' })),
     h('div', { class: 'mb-top-mid' }, nameField, h('div', { class: 'mb-savebox' }, led, saveText)),
     h('div', { class: 'mb-top-right' }, undo, redo, key('Projects', { icon: ICON.folder, onClick: openProjectsDialog }), night, exportKey));

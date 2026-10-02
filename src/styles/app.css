@@ -272,3 +272,7 @@ button { font: inherit; color: inherit; }
 
 /* flat black panels: no acrylic glare stripes (kept on the top bar only) */
 .mb-rail .an-smoke::after { background: var(--an-face); }
+
+/* blue top bar: keep small print high-contrast on blue */
+.mb-top .an-eyebrow { color: var(--on-dark); opacity: .9; }
+.mb-top :focus-visible { outline-color: var(--on-dark); }
