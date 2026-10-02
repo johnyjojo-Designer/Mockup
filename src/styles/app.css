@@ -135,7 +135,7 @@ button { font: inherit; color: inherit; }
 
 /* ---------- device panel ---------- */
 .mb-devlist { display: grid; gap: 6px; }
-.mb-dev { display: flex; align-items: center; gap: 4px; padding: 4px 4px 4px 6px; border: 2px solid var(--ink); border-radius: 10px; background: rgba(0, 0, 0, .28); }
+.mb-dev { display: flex; align-items: center; gap: 4px; padding: 4px 4px 4px 6px; border: 2px solid var(--ink); border-radius: 10px; background: rgba(255, 255, 255, .07); }
 .mb-dev.is-sel { background: var(--ink); color: var(--bone); }
 .mb-dev-main { flex: 1; display: flex; align-items: center; gap: 8px; background: none; border: 0; padding: 4px; cursor: pointer; text-align: left; min-width: 0; color: inherit; }
 .mb-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--ink); flex: none; }
@@ -153,7 +153,7 @@ button { font: inherit; color: inherit; }
 .mb-grad[aria-pressed="true"] { outline: 3px solid var(--ink); outline-offset: 2px; }
 .mb-presets { display: grid; gap: 6px; }
 .mb-preset { display: flex; align-items: center; gap: 6px; }
-.mb-preset-main { flex: 1; display: flex; align-items: center; gap: 8px; padding: 6px 8px; background: rgba(0, 0, 0, .28); color: inherit; border: 2px solid var(--ink); border-radius: 9px; cursor: pointer; font: 700 12px var(--font-body); text-align: left; }
+.mb-preset-main { flex: 1; display: flex; align-items: center; gap: 8px; padding: 6px 8px; background: rgba(255, 255, 255, .07); color: inherit; border: 2px solid var(--ink); border-radius: 9px; cursor: pointer; font: 700 12px var(--font-body); text-align: left; }
 .mb-grad-mini { width: 20px; height: 20px; border-radius: 6px; border: 2px solid var(--ink); flex: none; }
 .mb-tabs { display: flex; flex-wrap: wrap; gap: 6px; padding-bottom: 2px; }
 
@@ -251,11 +251,21 @@ button { font: inherit; color: inherit; }
 }
 
 /* everything floating is a blue module: keep focus/selection rings readable on blue */
-.an-blue :focus-visible { outline-color: var(--on-dark); }
-.an-blue .mb-sw[aria-pressed="true"], .an-blue .mb-grad[aria-pressed="true"] { outline-color: var(--on-dark); }
-.an-blue .mb-range:focus-visible::-webkit-slider-thumb { outline-color: var(--on-dark); }
+.an-blue :focus-visible, .an-smoke :focus-visible { outline-color: var(--on-dark); }
+.an-smoke .mb-sw[aria-pressed="true"], .an-smoke .mb-grad[aria-pressed="true"] { outline-color: var(--on-dark); }
+.an-smoke .mb-range:focus-visible::-webkit-slider-thumb { outline-color: var(--on-dark); }
 .mb-tl-row { flex-wrap: wrap; }
 .mb-timeline.is-still .mb-tl-row { display: none; }
 @media (min-width: 1181px) {
   .mb-well { padding-bottom: 18px; }
 }
+
+/* label plates: one colour per module */
+.mb-tag-yellow { --an-tag-bg: var(--yellow); }
+.mb-tag-orange { --an-tag-bg: var(--orange); }
+.mb-tag-green { --an-tag-bg: var(--green); }
+.mb-tag-bone { --an-tag-bg: var(--bone); }
+.mb-tag-red { --an-tag-bg: var(--red); color: var(--on-dark); }
+.mb-tag-blue { --an-tag-bg: var(--blue); color: var(--on-dark); }
+.mb-dev.is-sel { background: var(--bone); color: var(--ink); }
+.mb-dev.is-sel .mb-dot { border-color: var(--ink); }

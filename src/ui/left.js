@@ -48,7 +48,7 @@ export function buildLeft() {
   const hint = readout('Drag a screen onto a device');
   const drop = h('button', { type: 'button', class: 'mb-drop', onclick: async () => { const f = await pickFiles(ACCEPT); if (f.length) addFiles(f); } },
     h('span', { class: 'mb-drop-ic', html: ICON.up }), h('strong', { class: 'an-display', text: 'Upload screens' }), h('span', { class: 'mb-drop-sub', text: 'PNG · JPG · WebP · MP4 · WebM' }));
-  const screensMod = mod('Screens', { family: 'blue', ch: 'CH 1', led: '' }, drop, grid, hint);
+  const screensMod = mod('Screens', { family: 'smoke', ch: 'CH 1', led: '' }, drop, grid, hint);
 
   let lastSig = '';
   function syncScreens() {
@@ -82,7 +82,7 @@ export function buildLeft() {
     return b;
   }));
   const addRow = h('div', { class: 'mb-addrow' }, Object.entries(DEVICE_TYPES).map(([type, v]) => key(v.name, { icon: ICON.plus, className: 'mb-addkey', title: `Add a ${v.name.toLowerCase()}`, onClick: () => addDevice(type) })));
-  const mockMod = mod('Mockups', { family: 'blue', ch: 'CH 2' }, tgrid, h('span', { class: 'mb-lbl', text: 'Add a device' }), addRow);
+  const mockMod = mod('Mockups', { family: 'smoke', ch: 'CH 2' }, tgrid, h('span', { class: 'mb-lbl', text: 'Add a device' }), addRow);
   const syncMock = () => { for (const b of tgrid.children) b.setAttribute('aria-pressed', b.dataset.id === app.store.state.template); };
 
   const el = h('div', { class: 'mb-stack' }, screensMod, mockMod);

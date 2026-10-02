@@ -4,10 +4,17 @@ import { h } from './dom.js';
 
 let seq = 0;
 
+// each module name gets its own label-plate colour so panels are easy to tell apart on the dark faces
+const TAGS = {
+  Screens: 'yellow', Mockups: 'orange', Output: 'green', Devices: 'red', Model: 'blue', Screen: 'yellow', Place: 'orange',
+  Background: 'green', 'Light & shadow': 'red', Stage: 'blue', Presets: 'yellow', Camera: 'green', Motion: 'orange', Poses: 'blue',
+  Image: 'yellow', Video: 'red',
+};
+
 /** Module slab with tag, channel and LED. */
 export function mod(title, { family = 'bone', ch = '', led = null, className = '' } = {}, ...kids) {
   const ledEl = led ? h('span', { class: 'an-led', 'data-s': led }) : null;
-  const head = h('div', { class: 'an-mod-head' }, h('span', { class: 'an-tag', text: title }), ch ? h('span', { class: 'an-ch', text: ch }) : null, ledEl);
+  const head = h('div', { class: 'an-mod-head' }, h('span', { class: `an-tag mb-tag-${TAGS[title] || 'bone'}`, text: title }), ch ? h('span', { class: 'an-ch', text: ch }) : null, ledEl);
   const el = h('section', { class: `an-slab an-mod an-${family} ${className}`, 'aria-label': title }, head, ...kids);
   el.setLed = (s) => { if (ledEl) ledEl.dataset.s = s || ''; };
   return el;

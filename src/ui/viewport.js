@@ -151,7 +151,7 @@ export function buildViewport() {
   const time = h('output', { class: 'mb-lcd mb-time' });
   const frameBtn = key('Save frame', { icon: ICON.img, title: 'Export the frame at the playhead as an image', onClick: () => runImageExport() });
   const modeSeg = seg({ aria: 'Output type', options: [{ id: 'static', name: 'Still' }, { id: 'animated', name: 'Animate' }], get: () => store.state.motion.mode, set: (v) => { engine.pause(); set((p) => { p.motion.mode = v; }); if (v === 'animated') store.ui.tab = 'motion'; store.emit('select'); } });
-  const tl = mod('Output', { family: 'blue', ch: 'CANVAS', className: 'mb-timeline' },
+  const tl = mod('Output', { family: 'smoke', ch: 'CANVAS', className: 'mb-timeline' },
     h('span', { class: 'mb-lbl', text: 'Format' }), aspectSeg, sizeRead,
     h('span', { class: 'mb-lbl', text: 'Output' }), modeSeg,
     h('div', { class: 'mb-tl-row' }, playBtn, scrub, time), h('div', { class: 'mb-row' }, frameBtn));
