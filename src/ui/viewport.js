@@ -142,20 +142,19 @@ export function buildViewport() {
     if (mv) { e.preventDefault(); set((p) => { const x = p.devices.find((q) => q.id === d.id); x.pos[0] += mv[0]; x.pos[1] += mv[1]; }, { key: `nudge:${d.id}` }); }
   });
 
-  // ---- format strip
+  // ---- output: format + still/animate + transport, one panel (lives in the right rail)
   const aspectSeg = seg({ aria: 'Canvas aspect ratio', options: [...ASPECTS.map((a) => ({ id: a.id, name: a.label })), { id: 'custom', name: 'Custom' }], get: () => store.state.canvas.aspect, set: setAspect });
   const sizeRead = readout('');
-  const format = mod('Format', { family: 'bone', ch: 'CANVAS' }, aspectSeg, sizeRead);
-
-  // ---- timeline
   const playBtn = key('', { icon: ICON.play, className: 'mb-play', title: 'Play / pause (Space)', onClick: () => engine.toggle() });
   const scrub = h('input', { type: 'range', class: 'mb-range mb-scrub', min: 0, max: 1000, step: 1, value: 0, 'aria-label': 'Timeline' });
   scrub.addEventListener('input', () => { engine.pause(); engine.setTime((scrub.value / 1000) * store.state.motion.duration); engine.dirty = true; paintTime(); });
   const time = h('output', { class: 'mb-lcd mb-time' });
   const frameBtn = key('Save frame', { icon: ICON.img, title: 'Export the frame at the playhead as an image', onClick: () => runImageExport() });
   const modeSeg = seg({ aria: 'Output type', options: [{ id: 'static', name: 'Still' }, { id: 'animated', name: 'Animate' }], get: () => store.state.motion.mode, set: (v) => { engine.pause(); set((p) => { p.motion.mode = v; }); if (v === 'animated') store.ui.tab = 'motion'; store.emit('select'); } });
-  const loopTog = null;
-  const tl = mod('Output', { family: 'red', ch: 'TIMELINE', className: 'mb-timeline' }, modeSeg, h('div', { class: 'mb-tl-row' }, playBtn, scrub, time, frameBtn));
+  const tl = mod('Output', { family: 'blue', ch: 'CANVAS', className: 'mb-timeline' },
+    h('span', { class: 'mb-lbl', text: 'Format' }), aspectSeg, sizeRead,
+    h('span', { class: 'mb-lbl', text: 'Output' }), modeSeg,
+    h('div', { class: 'mb-tl-row' }, playBtn, scrub, time), h('div', { class: 'mb-row' }, frameBtn));
   function paintTime() {
     const m = store.state.motion;
     const t = m.loop === 'once' ? Math.min(engine.t, m.duration) : engine.t % m.duration;
@@ -164,9 +163,10 @@ export function buildViewport() {
   }
   engine.onFrame(() => { if (store.state.motion.mode === 'animated') paintTime(); });
 
-  const root = h('div', { class: 'mb-center' }, well, h('div', { class: 'mb-controls' }, format, tl));
+  const root = h('div', { class: 'mb-center' }, well);
   return {
     el: root,
+    controls: tl,
     layout,
     sync() {
       const p = store.state;

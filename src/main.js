@@ -42,7 +42,7 @@ async function start() {
 
   const rail = (cls, kids) => h('aside', { class: `mb-rail ${cls}` }, kids);
   const centre = h('main', { class: 'mb-centre' }, vp.el);
-  root.replaceChildren(top, h('div', { class: 'mb-work' }, centre, rail('rail-left', left.el), rail('rail-right', right.el)));
+  root.replaceChildren(top, h('div', { class: 'mb-work' }, centre, rail('rail-left', left.el), rail('rail-right', h('div', { class: 'mb-stack' }, vp.controls, right.el))));
 
   const engSize = { textContent: '' };
   let queued = false;

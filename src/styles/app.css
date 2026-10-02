@@ -135,7 +135,7 @@ button { font: inherit; color: inherit; }
 
 /* ---------- device panel ---------- */
 .mb-devlist { display: grid; gap: 6px; }
-.mb-dev { display: flex; align-items: center; gap: 4px; padding: 4px 4px 4px 6px; border: 2px solid var(--ink); border-radius: 10px; background: rgba(255, 255, 255, .35); }
+.mb-dev { display: flex; align-items: center; gap: 4px; padding: 4px 4px 4px 6px; border: 2px solid var(--ink); border-radius: 10px; background: rgba(0, 0, 0, .28); }
 .mb-dev.is-sel { background: var(--ink); color: var(--bone); }
 .mb-dev-main { flex: 1; display: flex; align-items: center; gap: 8px; background: none; border: 0; padding: 4px; cursor: pointer; text-align: left; min-width: 0; color: inherit; }
 .mb-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--ink); flex: none; }
@@ -153,10 +153,10 @@ button { font: inherit; color: inherit; }
 .mb-grad[aria-pressed="true"] { outline: 3px solid var(--ink); outline-offset: 2px; }
 .mb-presets { display: grid; gap: 6px; }
 .mb-preset { display: flex; align-items: center; gap: 6px; }
-.mb-preset-main { flex: 1; display: flex; align-items: center; gap: 8px; padding: 6px 8px; background: rgba(255, 255, 255, .45); border: 2px solid var(--ink); border-radius: 9px; cursor: pointer; font: 700 12px var(--font-body); text-align: left; }
+.mb-preset-main { flex: 1; display: flex; align-items: center; gap: 8px; padding: 6px 8px; background: rgba(0, 0, 0, .28); color: inherit; border: 2px solid var(--ink); border-radius: 9px; cursor: pointer; font: 700 12px var(--font-body); text-align: left; }
 .mb-grad-mini { width: 20px; height: 20px; border-radius: 6px; border: 2px solid var(--ink); flex: none; }
 .mb-tabs { display: flex; flex-wrap: wrap; gap: 6px; padding-bottom: 2px; }
-.mb-tabs + .mb-toggle { color: var(--fg); }
+
 .mb-rail-note { font: 500 10px var(--font-mono); }
 
 /* ---------- centre: preview well, format, timeline ---------- */
@@ -248,4 +248,14 @@ button { font: inherit; color: inherit; }
 @media (max-width: 1180px) {
   .mb-rail { display: block; }
   .mb-centre, .mb-center { position: static; }
+}
+
+/* everything floating is a blue module: keep focus/selection rings readable on blue */
+.an-blue :focus-visible { outline-color: var(--on-dark); }
+.an-blue .mb-sw[aria-pressed="true"], .an-blue .mb-grad[aria-pressed="true"] { outline-color: var(--on-dark); }
+.an-blue .mb-range:focus-visible::-webkit-slider-thumb { outline-color: var(--on-dark); }
+.mb-tl-row { flex-wrap: wrap; }
+.mb-timeline.is-still .mb-tl-row { display: none; }
+@media (min-width: 1181px) {
+  .mb-well { padding-bottom: 18px; }
 }

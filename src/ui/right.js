@@ -26,7 +26,7 @@ const fmtPct = (v) => `${Math.round(v)}%`;
 function deviceTab() {
   const g = new Group();
   const list = h('div', { class: 'mb-devlist', role: 'listbox', 'aria-label': 'Devices in scene' });
-  const listMod = mod('Devices', { family: 'green', ch: 'CH 3' }, list, readout('Click a device here or in the preview'));
+  const listMod = mod('Devices', { family: 'blue', ch: 'CH 3' }, list, readout('Click a device here or in the preview'));
   const body = h('div', { class: 'mb-stack' });
   let lsig = '', bsig = '';
 
@@ -50,7 +50,7 @@ function deviceTab() {
     // MODEL
     const typeSeg = gi(seg({ aria: 'Device type', options: Object.entries(DEVICE_TYPES).map(([id, v]) => ({ id, name: v.name })), get: () => sel().type, set: (id) => devSet((x) => { x.type = id; x.color = DEVICE_TYPES[id].colors[0]; x.name = DEVICE_TYPES[id].name; if (id === 'laptop') x.scale = Math.min(x.scale, 1.2); }) }));
     const colors = DEVICE_TYPES[d.type].colors;
-    const model = mod('Model', { family: 'bone', ch: 'CH 4' }, typeSeg,
+    const model = mod('Model', { family: 'blue', ch: 'CH 4' }, typeSeg,
       label('Colour'), gi(swatches({ colors, get: () => sel().color, set: (c) => devSet((x) => { x.color = c; }, 'color') })),
       label('Finish'), gi(seg({ aria: 'Finish', options: FINISHES, get: () => sel().finish, set: (v) => devSet((x) => { x.finish = v; }) })),
       d.type === 'phone' || d.type === 'tablet' ? gi(toggle({ label: 'Landscape', get: () => sel().landscape, set: (v) => devSet((x) => { x.landscape = v; }) })) : null,
@@ -75,7 +75,7 @@ function deviceTab() {
       readout('Designs are never stretched or redrawn'));
 
     // PLACE
-    const place = mod('Place', { family: 'orange', ch: 'CH 6' },
+    const place = mod('Place', { family: 'blue', ch: 'CH 6' },
       gi(slider({ label: 'Left / right', min: -4, max: 4, step: 0.01, get: () => sel().pos[0], set: (v) => devSet((x) => { x.pos[0] = v; }, 'px') })),
       gi(slider({ label: 'Up / down', min: -3, max: 3, step: 0.01, get: () => sel().pos[1], set: (v) => devSet((x) => { x.pos[1] = v; }, 'py') })),
       gi(slider({ label: 'Depth', min: -4, max: 3, step: 0.01, adv: true, get: () => sel().pos[2], set: (v) => devSet((x) => { x.pos[2] = v; }, 'pz') })),
@@ -134,14 +134,14 @@ function styleTab() {
     } })),
     gi(seg({ aria: 'Background image fit', options: [{ id: 'cover', name: 'Cover' }, { id: 'contain', name: 'Contain' }], get: () => bg().image.fit, set: (v) => S((p) => { p.style.bg.image.fit = v; }) })));
   const transBox = h('div', { class: 'mb-stack-sm' }, readout('Transparent: export a PNG with no background'));
-  const bgMod = mod('Background', { family: 'green', ch: 'CH 7' }, typeSeg, gradBox, solidBox, imgBox, transBox,
+  const bgMod = mod('Background', { family: 'blue', ch: 'CH 7' }, typeSeg, gradBox, solidBox, imgBox, transBox,
     gi(slider({ label: 'Intensity', min: 0, max: 130, step: 1, fmt: fmtPct, get: () => bg().intensity, set: (v) => S((p) => { p.style.bg.intensity = v; }, 'bgi') })),
     gi(slider({ label: 'Vignette', min: 0, max: 100, step: 1, fmt: fmtPct, adv: true, get: () => bg().vignette, set: (v) => S((p) => { p.style.bg.vignette = v; }, 'vig') })));
 
   // ---- light
   const L = () => P().style.light;
   const lk = (k) => (v) => S((p) => { p.style.light[k] = v; }, `l${k}`);
-  const lightMod = mod('Light & shadow', { family: 'orange', ch: 'CH 8' },
+  const lightMod = mod('Light & shadow', { family: 'blue', ch: 'CH 8' },
     gi(slider({ label: 'Key light', min: 0, max: 4, step: 0.05, get: () => L().key, set: lk('key') })),
     gi(slider({ label: 'Light direction', min: -80, max: 80, step: 1, fmt: fmtDeg, get: () => L().azimuth, set: lk('azimuth') })),
     gi(slider({ label: 'Light height', min: 5, max: 85, step: 1, fmt: fmtDeg, adv: true, get: () => L().elevation, set: lk('elevation') })),
@@ -153,7 +153,7 @@ function styleTab() {
 
   // ---- stage props
   const PF = () => P().style.platform, DC = () => P().style.decor;
-  const stageMod = mod('Stage', { family: 'smoke', ch: 'CH 9' },
+  const stageMod = mod('Stage', { family: 'blue', ch: 'CH 9' },
     label('Platform'), gi(seg({ aria: 'Platform', options: PLATFORMS, get: () => PF().type, set: (v) => S((p) => { p.style.platform.type = v; }) })),
     gi(swatches({ colors: ['#eee9de', '#ffffff', '#2b2d35', '#f5c531', '#2659c9', '#cc2e27'], get: () => PF().color, set: (c) => S((p) => { p.style.platform.color = c; }, 'pfc') })),
     gi(seg({ aria: 'Platform finish', options: FINISHES, get: () => PF().finish, set: (v) => S((p) => { p.style.platform.finish = v; }) })),
@@ -172,7 +172,7 @@ function styleTab() {
       h('button', { type: 'button', class: 'mb-preset-main', onclick: () => applyPreset(r.id) }, h('span', { class: 'mb-grad-mini', style: { background: r.style.bg.type === 'gradient' ? `linear-gradient(${r.style.bg.gradient.angle}deg, ${r.style.bg.gradient.stops.join(',')})` : r.style.bg.color } }), h('span', { text: r.name })),
       key('', { icon: ICON.trash, className: 'mb-mini', title: 'Delete preset', onClick: () => deletePreset(r.id) }))) : [readout('No presets yet')]));
   };
-  const presetMod = mod('Presets', { family: 'yellow', ch: 'CH 10' }, readout('Save background, light, stage, camera angle and motion as one look'), pname,
+  const presetMod = mod('Presets', { family: 'blue', ch: 'CH 10' }, readout('Save background, light, stage, camera angle and motion as one look'), pname,
     row(key('Save current look', { icon: ICON.plus, onClick: async () => { await savePreset(pname.input.value.trim()); pname.input.value = ''; } })), plist);
 
   return {
@@ -201,7 +201,7 @@ function cameraTab() {
   const C = () => P().camera;
   const ck = (k, key) => (v) => S((p) => { p.camera[k] = v; }, key || `c${k}`);
   const gi = (c) => g.add(c);
-  const m = mod('Camera', { family: 'smoke', ch: 'CH 11' },
+  const m = mod('Camera', { family: 'blue', ch: 'CH 11' },
     gi(slider({ label: 'Angle ↔', min: -80, max: 80, step: 0.5, fmt: fmtDeg, get: () => C().az, set: ck('az') })),
     gi(slider({ label: 'Angle ↕', min: -40, max: 80, step: 0.5, fmt: fmtDeg, get: () => C().el, set: ck('el') })),
     gi(slider({ label: 'Zoom', min: 0.4, max: 3, step: 0.01, fmt: (v) => `${v.toFixed(2)}×`, get: () => C().zoom, set: ck('zoom') })),
@@ -231,7 +231,7 @@ function motionTab() {
     const lens = P().devices.map((d) => assets.get(d.screen.assetId)).filter((a) => a?.kind === 'video').map((a) => a.duration);
     if (lens.length) S((p) => { p.motion.duration = Math.min(60, Math.max(1, Math.round(Math.max(...lens) * 2) / 2)); });
   } }));
-  const mot = mod('Motion', { family: 'red', ch: 'CH 12' }, presets, hint,
+  const mot = mod('Motion', { family: 'blue', ch: 'CH 12' }, presets, hint,
     h('div', { class: 'mb-note-dark' }, 'Turn on ANIMATE under the preview to play and export video.'),
     dur, spd, inten, label('Easing'), ease, label('When it ends'), loopDial, vidMatch);
 
@@ -245,7 +245,7 @@ function motionTab() {
       ? h('div', { class: 'mb-stack-sm' }, readout(`Editing ${ed.slot.toUpperCase()} pose: move devices and camera, then save`), row(key('Save pose', { hot: true, onClick: () => endPoseEdit(true) }), key('Cancel', { onClick: () => endPoseEdit(false) })))
       : row(key('Edit start', { onClick: () => beginPoseEdit('start') }), key('Edit end', { onClick: () => beginPoseEdit('end') })));
   };
-  const poses = mod('Poses', { family: 'bone', ch: 'CH 13' }, readout('Place the scene at each end; the app animates between them'), poseToggle, poseBtns, poseHint);
+  const poses = mod('Poses', { family: 'blue', ch: 'CH 13' }, readout('Place the scene at each end; the app animates between them'), poseToggle, poseBtns, poseHint);
   let psig = '';
 
   return {
@@ -274,7 +274,7 @@ function exportTab() {
   const custom = h('div', { class: 'mb-two' },
     gi(numberField({ label: 'Width', min: 64, max: 8192, get: () => P().canvas.w, set: (v) => S((p) => { p.canvas.aspect = 'custom'; p.canvas.w = Math.round(v); }) })),
     gi(numberField({ label: 'Height', min: 64, max: 8192, get: () => P().canvas.h, set: (v) => S((p) => { p.canvas.aspect = 'custom'; p.canvas.h = Math.round(v); }) })));
-  const imgMod = mod('Image', { family: 'yellow', ch: 'OUT 1' },
+  const imgMod = mod('Image', { family: 'blue', ch: 'OUT 1' },
     label('Format'), gi(seg({ aria: 'Image format', options: [{ id: 'png', name: 'PNG' }, { id: 'jpg', name: 'JPG' }], get: () => E().image, set: (v) => S((p) => { p.export.image = v; }) })),
     label('Size (long side)'), gi(seg({ aria: 'Long side', options: LONG_SIDES.map((v) => ({ id: v, name: v >= 3840 ? `${v / 1000 | 0}K` : String(v) })), get: () => E().long, set: (v) => S((p) => { p.export.long = Number(v); }) })),
     custom,
@@ -284,7 +284,7 @@ function exportTab() {
 
   const vdims = readout('');
   const vnote = readout('');
-  const vidMod = mod('Video', { family: 'red', ch: 'OUT 2' },
+  const vidMod = mod('Video', { family: 'blue', ch: 'OUT 2' },
     label('Resolution (long side)'), gi(seg({ aria: 'Video size', options: [{ id: 1280, name: '720p' }, { id: 1920, name: '1080p' }, { id: 2560, name: '1440p' }, { id: 3840, name: '4K' }], get: () => E().vlong ?? 1920, set: (v) => S((p) => { p.export.vlong = Number(v); }) })),
     label('Frame rate'), gi(seg({ aria: 'Frame rate', options: [{ id: 24, name: '24' }, { id: 30, name: '30' }, { id: 60, name: '60' }], get: () => E().fps, set: (v) => S((p) => { p.export.fps = Number(v); }) })),
     label('Quality'), gi(seg({ aria: 'Bitrate', options: [{ id: 'standard', name: 'Standard' }, { id: 'high', name: 'High' }, { id: 'max', name: 'Max' }], get: () => E().bitrate, set: (v) => S((p) => { p.export.bitrate = v; }) })),
@@ -323,7 +323,7 @@ export function buildRight() {
   const bar = h('div', { class: 'mb-tabs', role: 'tablist' }, Object.keys(tabs).map((id) => h('button', { type: 'button', role: 'tab', class: 'an-key an-key--sm mb-tab', 'data-id': id, onclick: () => { app.store.ui.tab = id; app.store.emit('select'); } }, h('span', { class: 'an-key-cap', text: names[id] }))));
   const adv = toggle({ label: 'Advanced controls', get: () => app.store.ui.advanced, set: (v) => { app.store.ui.advanced = v; app.store.emit('select'); } });
   const panes = Object.fromEntries(Object.entries(tabs).map(([id, t]) => [id, h('div', { class: 'mb-pane', role: 'tabpanel', hidden: true }, t.el)]));
-  const el = h('div', { class: 'mb-stack' }, h('section', { class: 'an-slab an-bone an-mod mb-tabmod', 'aria-label': 'Control tabs' }, bar, adv), ...Object.values(panes));
+  const el = h('div', { class: 'mb-stack' }, h('section', { class: 'an-slab an-blue an-mod mb-tabmod', 'aria-label': 'Control tabs' }, bar, adv), ...Object.values(panes));
   return {
     el,
     sync() {

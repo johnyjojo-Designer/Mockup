@@ -82,7 +82,7 @@ export function buildLeft() {
     return b;
   }));
   const addRow = h('div', { class: 'mb-addrow' }, Object.entries(DEVICE_TYPES).map(([type, v]) => key(v.name, { icon: ICON.plus, className: 'mb-addkey', title: `Add a ${v.name.toLowerCase()}`, onClick: () => addDevice(type) })));
-  const mockMod = mod('Mockups', { family: 'bone', ch: 'CH 2' }, tgrid, h('span', { class: 'mb-lbl', text: 'Add a device' }), addRow);
+  const mockMod = mod('Mockups', { family: 'blue', ch: 'CH 2' }, tgrid, h('span', { class: 'mb-lbl', text: 'Add a device' }), addRow);
   const syncMock = () => { for (const b of tgrid.children) b.setAttribute('aria-pressed', b.dataset.id === app.store.state.template); };
 
   const el = h('div', { class: 'mb-stack' }, screensMod, mockMod);
